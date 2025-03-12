@@ -21,9 +21,19 @@ function initiate() {
     .then((res) => {
       container.innerHTML = ``;
       console.log(res.recipes);
+      recipes=[]
       recipes = recipes.concat(res.recipes);
       console.log(recipes);
       //   particularRecipe(recipes[0]);
+//       filtersDiv.innerHTML = `
+//   <span class="filter">Breakfast</span>
+//   <span class="filter">Lunch</span>
+//   <span class="filter">Snack</span>
+//   <span class="filter">Dinner</span>
+//   <span class="filter">Dessert</span>
+//   <span class="filter">Side Dish</span>
+//   <span class="filter">Appetizer</span>
+//   `;
       updateUi(res.recipes);
       attachEventListeners();
       //   loadMore.innerHTML = "Load More";
@@ -35,8 +45,6 @@ function initiate() {
 }
 initiate();
 function updateUi(recipes) {
-  filtersDiv.innerHTML = `<span class="filter"></span><span class="filter"></span
-        ><span class="filter"></span>`;
   container.innerHTML += `${recipes
     .map(
       (r) => `
@@ -52,6 +60,7 @@ function updateUi(recipes) {
 const loadMore = document.querySelector(".load-more");
 
 loadMore.addEventListener("click", () => {
+    loadMore.disabled = true;
   skip += 10;
   fetch(`https://dummyjson.com/recipes?limit=10&skip=${skip}`)
     .then((res) => res.json())
@@ -61,6 +70,7 @@ loadMore.addEventListener("click", () => {
       console.log(recipes);
       updateUi(res.recipes);
       attachEventListeners();
+      loadMore.disabled = false;
     })
     .catch((err) => {
       wrapper.innerHTML = err;
@@ -68,17 +78,64 @@ loadMore.addEventListener("click", () => {
 });
 
 // particular recipe page
+const filterElements = document.querySelectorAll(".filter");
 function attachEventListeners() {
-  const recipeElements = document.querySelectorAll(".recipe");
+    const recipeElements = document.querySelectorAll(".recipe");
+  
   // console.log(recipeElements)
   recipeElements.forEach((r) => {
     // console.log(r);
     r.addEventListener("click", () => {
-      particularRecipe(
-        recipes.find((rp) => rp.name === r.querySelector("p").innerText)
-      );
+        particularRecipe(
+            recipes.find((rp) => rp.name === r.querySelector("p").innerText)
+        );
     });
   });
+  filterElements.forEach((f) => {
+      // console.log(f);
+      f.addEventListener("click", (e) => {
+          updateUiFilters(filterElements,e.target,e.target.innerText,false)
+        });
+    });
+    
+}
+const clearFilterElement = document.querySelector(".clear-filter");
+clearFilterElement.addEventListener("click",(e)=>{
+    updateUiFilters(filterElements,e.target,e.target.innerText,true)
+  })
+function updateUiFilters(filterElements,activeFilterElement,filterName,isClear){
+    if (activeFilterElement.classList.contains("active-filter") && !isClear) return;
+    filterElements.forEach((f)=>{
+        f.classList.remove("active-filter")
+    })
+
+    if(isClear){ 
+        res=[]
+        initiate() 
+        return
+    }
+    
+    filterElements.forEach((f)=>{
+        f.classList.remove("active-filter")
+    })
+    activeFilterElement.classList.add("active-filter")
+    
+    // yet to confirm whether to fetch or find in only shown recipes
+    // api allows only single filter at a time but multiple filters can be applied locally
+    fetch(`https://dummyjson.com/recipes/meal-type/${filterName}`)
+    .then(res => res.json())
+    .then(res=>{console.log(res.recipes)
+        container.innerHTML = `${res.recipes
+        .map(
+          (r) => `
+            <div class="recipe">
+            <img src=${r.image}>
+            <p>${r.name}</p>
+            </div>
+            `
+        )
+        .join("")}`;
+    });
 }
 
 function particularRecipe(recipeClicked) {
@@ -149,12 +206,16 @@ function particularRecipe(recipeClicked) {
   </div>
   `;
   loadMore.style.display = "none";
-  document.querySelector(".close").addEventListener("click", initiate);
+  document.querySelector(".close").addEventListener("click",()=> {
+    recipes=[]
+    initiate()
+});
 }
 
 // search feature
 
 function updateUiSearch() {
+    // local search
   const recipesFound = recipes.filter((r) =>
     r.name.toLowerCase().includes(input.value.toLowerCase())
   );
@@ -169,6 +230,8 @@ function updateUiSearch() {
         `
     )
     .join("")}`;
+    // api search
+    
 }
 input.addEventListener("input", (e) => {
   console.log(input.value);
@@ -176,9 +239,11 @@ input.addEventListener("input", (e) => {
     updateUiSearch();
     attachEventListeners();
   } else {
+    res=[]
     initiate();
   }
   // console.log(recipes[0].id)
   // console.log(recipes.filter(r=>r.id!=input.value))
 });
-// input.onc
+
+
