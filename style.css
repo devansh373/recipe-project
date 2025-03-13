@@ -16,6 +16,7 @@
 }
 .nav {
   display: flex;
+  flex-wrap: wrap;
   /* justify-content: space-between; */
   width: 100%;
   padding-left: 10%;
@@ -24,6 +25,8 @@
 .filters{
     display: flex;
     justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 10px;
     width: 90%;
 }
 .filter{
@@ -218,4 +221,38 @@ img {
 }
 .outer-1 .right span:last-of-type{
     text-decoration:underline solid blueviolet 2px;
+}
+@media (max-width:1000px){
+    .filters{
+        width: 530px;
+    }
+    input{
+        width: 400px;
+    }
+}
+@media (max-width:850px){
+    input{
+        width: 250px;
+    }
+}
+@media (max-width:680px){
+    .nav{
+        padding-left: 0;
+    }
+    .title{
+        text-align: center;
+        width: 100%;
+    }
+    .search{
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+    input{
+        width: 250px;
+        margin: 20px 30%;
+    }
+    .filters{
+        width: 80%;
+    }
 }
