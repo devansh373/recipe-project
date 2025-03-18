@@ -231,6 +231,7 @@ function updateUiSearch() {
   if (input.value.length > 0) {
     loadMore.style.display = "none";
   }
+  console.log("first")
   fetch(`https://dummyjson.com/recipes/search?q=${input.value}`)
     .then((res) => res.json())
     .then((res) => {
@@ -238,7 +239,7 @@ function updateUiSearch() {
         container.innerHTML = "No results found";
         return;
       }
-      console.log();
+      // console.log();
       container.innerHTML = `${res.recipes
         .map(
           (r) => `
@@ -251,10 +252,19 @@ function updateUiSearch() {
         .join("")}`;
     });
 }
+
+function debounce(func, delay) {
+  let timer;
+  return function (...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+const debouncedSearch = debounce(updateUiSearch,500);
 input.addEventListener("input", (e) => {
-  console.log(input.value);
+  // console.log(input.value);
   if (input.value) {
-    updateUiSearch();
+    debouncedSearch()
     attachEventListeners();
   } else {
     res = [];
