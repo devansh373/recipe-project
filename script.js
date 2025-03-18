@@ -105,6 +105,7 @@ function updateUiFilters(
   if (isClear) {
     res = [];
     initiate();
+    loadMore.style.display="block";
     return;
   }
 
@@ -130,6 +131,7 @@ function updateUiFilters(
         )
         .join("")}`;
     });
+    loadMore.style.display="none";
 }
 
 function particularRecipe(recipeClicked) {
